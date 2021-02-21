@@ -1,8 +1,4 @@
 {
-    "editor.rulers": [
-        100
-    ],
-    "editor.wordWrapColumn": 100,
     "[clojure]": {
         "editor.defaultFormatter": "betterthantomorrow.calva"
     },
