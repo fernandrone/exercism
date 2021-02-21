@@ -1,4 +1,5 @@
 (ns beer-song)
+(require '[clojure.string :as string])
 
 (def verse-0
   (str "No more bottles of beer on the wall, no more bottles of beer.\n"
@@ -30,6 +31,5 @@
   end is not given, the whole song from start is sung."
   ([start] (sing start 0))
   ([start end]
-   (if (> start end)
-     (str (verse start) "\n" (sing (dec start) end))
-     (verse end))))
+   (let [dec-list-of-verses (range start (dec end) -1)]
+     (string/join "\n" (map verse dec-list-of-verses)))))
