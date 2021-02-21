@@ -1,0 +1,15 @@
+{
+    "editor.rulers": [
+        100
+    ],
+    "editor.wordWrapColumn": 100,
+    "[clojure]": {
+        "editor.defaultFormatter": "betterthantomorrow.calva"
+    },
+    "calva.hideReplUi": true,
+    "calva.showDocstringInParameterHelp": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "editor.wordWrap": "wordWrapColumn",
+}

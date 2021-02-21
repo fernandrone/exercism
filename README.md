@@ -1,0 +1,3 @@
+# exercism
+
+Personal exercism solutions.
