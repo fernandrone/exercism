@@ -31,7 +31,6 @@
   end is not given, the whole song from start is sung."
   ([start] (sing start 0))
   ([start end]
-   (->> (range end (inc start))
-        (reverse)
+   (->> (range start (dec end) -1)
         (map verse)
         (string/join "\n"))))
