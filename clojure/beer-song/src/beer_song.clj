@@ -20,11 +20,11 @@
 (defn verse
   "Returns the nth verse of the song."
   [n]
-  (cond
-    (= n 0) verse-0
-    (= n 1) verse-1
-    (= n 2) verse-2
-    :else (verse-n n)))
+  (case n
+    0 verse-0
+    1 verse-1
+    2 verse-2
+    (verse-n n)))
 
 (defn sing
   "Given a start and an optional end, returns all verses in this interval. If
