@@ -31,5 +31,7 @@
   end is not given, the whole song from start is sung."
   ([start] (sing start 0))
   ([start end]
-   (let [dec-list-of-verses (range start (dec end) -1)]
-     (string/join "\n" (map verse dec-list-of-verses)))))
+   (->> (range end (inc start))
+        (reverse)
+        (map verse)
+        (string/join "\n"))))
