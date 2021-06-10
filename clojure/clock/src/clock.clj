@@ -3,6 +3,9 @@
 (defn clock->string [{:keys [hours minutes]}]
   (format "%02d:%02d" hours minutes))
 
+;; update: 
+;;  this works but representing the clock as just
+;;  minutes would make the solution more simple!
 (defn clock [hours minutes]
   {:minutes (mod minutes 60)
    :hours   (cond-> (+ hours (quot minutes 60)) ;; first sum hours and minutes/60
