@@ -1,6 +1,9 @@
 {
     "[clojure]": {
-        "editor.defaultFormatter": "betterthantomorrow.calva"
+        "editor.defaultFormatter": "betterthantomorrow.calva",
+        "editor.rulers": [
+            80,
+        ]
     },
     "calva.hideReplUi": true,
     "calva.showDocstringInParameterHelp": true,
@@ -8,4 +11,7 @@
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
     "editor.wordWrap": "wordWrapColumn",
+    "editor.rulers": [
+        80
+    ],
 }

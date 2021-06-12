@@ -46,22 +46,23 @@
 (defn- within-board? [board [x y]]
   (some #(= [x y] %) board))
 
-(defn- get-adjacent-territory-loop [starting-territory empty-positions]
-  (reduce (fn [new-territory pos]
-            (if (any-adjacent? new-territory pos)
-              (conj new-territory pos)
-              new-territory))
-          starting-territory empty-positions))
+(defn- get-adjacent-loop [adjacent empty-pos]
+  (reduce
+   (fn [new-adjacent pos]
+     (if (any-adjacent? new-adjacent pos)
+       (conj new-adjacent pos)
+       new-adjacent))
+   adjacent empty-pos))
 
 (defn- get-adjacent-territory
   [grid board [x y]]
-  (let [empty-positions (filter-empty-positions grid board)]
-    (loop [starting-territory #{[x y]}]
-      (let [adjacent-territory    (get-adjacent-territory-loop starting-territory empty-positions)
-            found-more-territory? (> (count adjacent-territory) (count starting-territory))]
-        (if found-more-territory?
-          (recur adjacent-territory)
-          adjacent-territory)))))
+  (let [empty-pos (filter-empty-positions grid board)]
+    (loop [adjacent #{[x y]}]
+      (let [new-adjacent (get-adjacent-loop adjacent empty-pos)
+            found-more?  (> (count new-adjacent) (count adjacent))]
+        (if found-more?
+          (recur new-adjacent)
+          new-adjacent)))))
 
 (defn- get-owner [grid board stones]
   (let [black-pieces (filter-black-positions grid board)
@@ -76,7 +77,9 @@
 (defn territory [grid [x y]]
   (let [board (get-board grid)]
     (if (not (within-board? board [x y]))
-      (throw (IllegalArgumentException. (format "Invalid input: position [%d %d] outside grid" x y)))
+      (throw
+       (IllegalArgumentException.
+        (format "Invalid input: position [%d %d] outside grid" x y)))
       (let [piece (get-piece grid [x y])]
         (if (= piece \space)
           (let [stones (get-adjacent-territory grid board [x y])
@@ -86,11 +89,12 @@
 
 (defn territories [grid]
   (let [board (get-board grid)
-        empty-positions (filter-empty-positions grid board)
-        vector-of-stones (map #(territory grid %) empty-positions)]
-    (reduce (fn [territories-map territory-map]
-              (case (:owner territory-map)
-                (:black) (update territories-map :black-territory into (:stones territory-map))
-                (:white) (update territories-map :white-territory into (:stones territory-map))
-                (nil)    (update territories-map :null-territory  into (:stones territory-map))))
-            empty-territories vector-of-stones)))
+        empty-pos (filter-empty-positions grid board)
+        stones-vector (map #(territory grid %) empty-pos)]
+    (reduce
+     (fn [territories-map territory-map]
+       (case (:owner territory-map)
+         (:black) (update territories-map :black-territory into (:stones territory-map))
+         (:white) (update territories-map :white-territory into (:stones territory-map))
+         (nil)    (update territories-map :null-territory  into (:stones territory-map))))
+     empty-territories stones-vector)))
