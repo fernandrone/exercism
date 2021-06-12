@@ -43,20 +43,21 @@
 (defn- filter-white-positions [grid positions]
   (filter-positions grid positions \W))
 
-(defn- within-grid? [grid [x y]]
-  (let [board (get-board grid)]
-    (some #(= [x y] %) board)))
+(defn- within-board? [board [x y]]
+  (some #(= [x y] %) board))
 
-(defn- get-adjacent-territory [grid board [x y]]
+(defn- get-adjacent-territory-loop [starting-territory empty-positions]
+  (reduce (fn [new-territory pos]
+            (if (any-adjacent? new-territory pos)
+              (conj new-territory pos)
+              new-territory))
+          starting-territory empty-positions))
+
+(defn- get-adjacent-territory
+  [grid board [x y]]
   (let [empty-positions (filter-empty-positions grid board)]
-    (loop [starting-territory #{}]
-      (let [adjacent-territory (reduce (fn [new-territory pos]
-                                         (let [merged-territory (into starting-territory new-territory)
-                                               is-pos-adjacent? (some true? (map #(adjacent? pos %) merged-territory))]
-                                           (if is-pos-adjacent?
-                                             (conj merged-territory pos)
-                                             merged-territory)))
-                                       #{[x y]} empty-positions)
+    (loop [starting-territory #{[x y]}]
+      (let [adjacent-territory    (get-adjacent-territory-loop starting-territory empty-positions)
             found-more-territory? (> (count adjacent-territory) (count starting-territory))]
         (if found-more-territory?
           (recur adjacent-territory)
@@ -73,15 +74,15 @@
       :else nil)))
 
 (defn territory [grid [x y]]
-  (if (not (within-grid? grid [x y]))
-    (throw (IllegalArgumentException. (format "Invalid input: position [%d %d] outside grid" x y)))
-    (let [board (get-board grid)
-          piece (get-piece grid [x y])]
-      (if (= piece \space)
-        (let [stones (get-adjacent-territory grid board [x y])
-              owner  (get-owner grid board stones)]
-          (assoc empty-territory :stones stones :owner owner))
-        empty-territory))))
+  (let [board (get-board grid)]
+    (if (not (within-board? board [x y]))
+      (throw (IllegalArgumentException. (format "Invalid input: position [%d %d] outside grid" x y)))
+      (let [piece (get-piece grid [x y])]
+        (if (= piece \space)
+          (let [stones (get-adjacent-territory grid board [x y])
+                owner  (get-owner grid board stones)]
+            (assoc empty-territory :stones stones :owner owner))
+          empty-territory)))))
 
 (defn territories [grid]
   (let [board (get-board grid)
