@@ -1,19 +1,15 @@
-(ns armstrong-numbers
-  (:require [clojure.string :as string]))
+(ns armstrong-numbers)
 
 (defn pow
   "x^n"
   [x n]
-  (if (>= n 0)
-    (->> x (repeat n) (reduce *))
-    (->> (pow (/ 1 x) (- n)))))
+  (->> x (repeat n) (reduce *)))
 
-(defn digits [n]
-  (string/split (str n) #""))
-
-(defn armstrong? [n]
-  (let [d (digits n)]
-    (->> (map #(Integer/parseInt %) d)
-         (map #(pow % (count d)))
-         (reduce +)
-         (= n))))
+(defn armstrong? [number]
+  (let [d (->> (iterate #(quot % 10) number)
+               (take-while pos?)
+               (map #(mod % 10)))
+        n (count d)]
+    (->> (map #(pow % n) d)
+         (apply +)
+         (= number))))
