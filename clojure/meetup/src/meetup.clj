@@ -19,10 +19,7 @@
    :last    #(TemporalAdjusters/lastInMonth %)
    :teenth  #(TemporalAdjusters/next %)})
 
-(defn- adjust [date wd descriptor]
-  (-> date (.with ((descriptor->adjuster descriptor) wd))))
-
 (defn meetup [month year weekday descriptor]
   (-> (LocalDate/parse (format "%04d-%02d-12" year month))
-      (adjust (weekday->enum weekday) descriptor)
+      (.with ((descriptor->adjuster descriptor) (weekday->enum weekday)))
       ((juxt #(.getYear %) #(.getMonthValue %) #(.getDayOfMonth %)))))
