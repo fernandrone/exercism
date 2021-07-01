@@ -10,4 +10,4 @@
 
 (defn to-rna [dna]
   {:post [(= (count dna) (count %))]}
-  (str/join (map dna->rna (char-array dna))))
+  (str/join (map dna->rna dna)))
