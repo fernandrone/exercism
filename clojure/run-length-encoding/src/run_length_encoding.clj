@@ -1,13 +1,19 @@
 (ns run-length-encoding
   (:require [clojure.string :as str]))
 
+;; [a-zA-Z\s] matches a valid RLE character, ( ) creates a capture
+;; group, \1 matches the same character matched by the capture group
+;; and * matches the previous token between zero and unlimited times
+(def ^:private rle-pattern
+  #"([a-zA-Z\s])\1*")
+
 (defn run-length-encode
   "Encodes a string with run-length-encoding"
   [plain-text]
-  (->> (re-seq #"(.)\1*" plain-text)
-       (map first)
+  (->> (re-seq rle-pattern plain-text)
+       (map first) ; filter only the matches, ignore the group
        (map #(str (count %) (first %)))
-       (map #(str/replace % #"1([a-zA-Z\s]+)" "$1"))
+       (map #(str/replace % #"1([a-zA-Z\s]+)" "$1")) ; delete count "1"
        (str/join)))
 
 
@@ -26,7 +32,7 @@
         re      (->> (map #(re-find #"\d+" %) matches)
                      (map #(str->int %)))
         ch      (map #(re-find #"[a-zA-Z\s]+" %) matches)]
-    (->> (apply map vector [re ch])
+    (->> (apply map vector [re ch]) ; creates a vector like ([2 "A"] [3 "B"])
          (map #(repeat (first %) (second %)))
          (map str/join)
          (str/join))))
