@@ -1,5 +1,6 @@
 (ns run-length-encoding
   (:require [clojure.string :as str]))
+
 (defn- encode-elem
   [[first & remaining :as element]]
   (if (nil? remaining)
