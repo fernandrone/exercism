@@ -1,38 +1,35 @@
 (ns run-length-encoding
   (:require [clojure.string :as str]))
-
-;; [a-zA-Z\s] matches a valid RLE character, ( ) creates a capture
-;; group, \1 matches the same character matched by the capture group
-;; and * matches the previous token between zero and unlimited times
-(def ^:private rle-pattern
-  #"([a-zA-Z\s])\1*")
+(defn- encode-elem
+  [[first & remaining :as element]]
+  (if (nil? remaining)
+    first
+    (str (count element) first)))
 
 (defn run-length-encode
   "Encodes a string with run-length-encoding"
   [plain-text]
-  (->> (re-seq rle-pattern plain-text)
-       (map first) ; filter only the matches, ignore the group
-       (map #(str (count %) (first %)))
-       (map #(str/replace % #"1([a-zA-Z\s]+)" "$1")) ; delete count "1"
+  (->> (partition-by identity plain-text)
+       (map encode-elem)
        (str/join)))
 
+;; When applied to an encoded string with 're-seq' this pattern splits it into
+;; arrays of three elements: the first is the matchr, and the second and third
+;; are the first and second capture group. They correspond to the number of
+;; repeatitions '(\d*)' (which can be an empty string) and the character to be
+;; repeated '([a-zA-Z \s])'.
+(def ^:private decode-pattern
+  #"(\d*)([a-zA-Z\s])")
 
-(defn- str->int
-  "Converts string to integer. As this function is used in
-  multiplications, if the string is empty it returns 1."
-  [s]
-  (if (empty? s)
-    1
-    (Integer/parseInt s)))
+(defn- decode-elem
+  [[_ re ch]]
+  (if (empty? re)
+    ch
+    (str/join (repeat (Integer/parseInt re) ch))))
 
 (defn run-length-decode
   "Decodes a run-length-encoded string"
   [cipher-text]
-  (let [matches (re-seq #"\d*[a-zA-Z\s]" cipher-text)
-        re      (->> (map #(re-find #"\d+" %) matches)
-                     (map #(str->int %)))
-        ch      (map #(re-find #"[a-zA-Z\s]+" %) matches)]
-    (->> (apply map vector [re ch]) ; creates a vector like ([2 "A"] [3 "B"])
-         (map #(repeat (first %) (second %)))
-         (map str/join)
-         (str/join))))
+  (->> (re-seq decode-pattern cipher-text)
+       (map decode-elem)
+       (str/join)))
