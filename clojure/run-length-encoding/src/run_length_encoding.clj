@@ -1,18 +1,16 @@
-(ns run-length-encoding
-  (:require [clojure.string :as str]))
+(ns run-length-encoding)
 
 (defn- encode-elem
   [[first & remaining :as element]]
-  (if (nil? remaining)
-    first
-    (str (count element) first)))
+  (cond->> first
+    (some? remaining) (str (count element))))
 
 (defn run-length-encode
   "Encodes a string with run-length-encoding"
   [plain-text]
   (->> (partition-by identity plain-text)
        (map encode-elem)
-       (str/join)))
+       (apply str)))
 
 ;; When applied to an encoded string with 're-seq' this pattern splits it into
 ;; arrays of three elements: the first is the matchr, and the second and third
@@ -24,13 +22,13 @@
 
 (defn- decode-elem
   [[_ re ch]]
-  (if (empty? re)
-    ch
-    (str/join (repeat (Integer/parseInt re) ch))))
+  (cond->> ch
+    (seq re) (repeat (Integer/parseInt re))
+    (seq re) (apply str)))
 
 (defn run-length-decode
   "Decodes a run-length-encoded string"
   [cipher-text]
   (->> (re-seq decode-pattern cipher-text)
        (map decode-elem)
-       (str/join)))
+       (apply str)))
