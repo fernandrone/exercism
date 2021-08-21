@@ -13,7 +13,7 @@
        (apply str)))
 
 ;; When applied to an encoded string with 're-seq' this pattern splits it into
-;; arrays of three elements: the first is the matchr, and the second and third
+;; arrays of three elements: the first is the matcr, and the second and third
 ;; are the first and second capture group. They correspond to the number of
 ;; repeatitions '(\d*)' (which can be an empty string) and the character to be
 ;; repeated '([a-zA-Z \s])'.
@@ -23,12 +23,11 @@
 (defn- decode-elem
   [[_ re ch]]
   (cond->> ch
-    (seq re) (repeat (Integer/parseInt re))
-    (seq re) (apply str)))
+    (seq re) (repeat (Integer/parseInt re))))
 
 (defn run-length-decode
   "Decodes a run-length-encoded string"
   [cipher-text]
   (->> (re-seq decode-pattern cipher-text)
-       (map decode-elem)
+       (mapcat decode-elem)
        (apply str)))
